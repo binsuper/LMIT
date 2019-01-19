@@ -5,17 +5,35 @@ local _M = {}
 ---------------------------------------------------
 
 --[[
-	打印变量, 支持更多类型
+	支持打印多种数据类型的变量
+	支持返回打印的信息
+	@param mixed var 变量
+	@param stream out 输出方式
+		stdout	: 控制台 （默认）
+		ngx		: ngx.say
+		log		: ngx.log(ngx.INFO, str)
+		callable: out(str)
 ]]
-function _M.print_r(var)
-	local print_buf = {}
+function _M.print(var, out)
+
+	local function output(str)
+		if out == nil or out == 'stdout' then
+			print(str)
+		elseif out == 'ngx' then
+			ngx.say(str)
+		elseif out == 'log' then
+			ngx.log(ngx.INFO, str)
+		elseif type(out) == 'function' then
+			out(str)
+		end
+	end
 
 	local function print_line(str, tab_size)
 		tab_size = tab_size or 0
 		if tab_size > 0 then
 			str = string.rep("    ", tab_size) .. str
 		end
-		print(str)
+		output(str)
 	end
 
 	local function print_r_internal(data, depth, prestr)
@@ -119,6 +137,9 @@ function table.extend(dest, src, depth)
 	end
 	return dest, nil
 end
+
+
+
 
 
 return _M
