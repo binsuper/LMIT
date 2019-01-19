@@ -7,7 +7,7 @@ local _M = {}
 --[[
 	打印变量, 支持更多类型
 ]]
-function print_r(var)
+function _M.print_r(var)
 	local print_buf = {}
 
 	local function print_line(str, tab_size)
