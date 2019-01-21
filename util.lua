@@ -11,7 +11,8 @@ local _M = {}
 	@param stream out 输出方式
 		stdout	: 控制台 （默认）
 		ngx		: ngx.say
-		log		: ngx.log(ngx.INFO, str)
+		log.info: ngx.log(ngx.INFO, str)
+		log.err : ngx.log(ngx.ERR, str)
 		callable: out(str)
 ]]
 function _M.print(var, out)
@@ -21,8 +22,10 @@ function _M.print(var, out)
 			print(str)
 		elseif out == 'ngx' then
 			ngx.say(str)
-		elseif out == 'log' then
+		elseif out == 'log.info' then
 			ngx.log(ngx.INFO, str)
+		elseif out == 'log.err' then
+			ngx.log(ngx.ERR, str)
 		elseif type(out) == 'function' then
 			out(str)
 		end
