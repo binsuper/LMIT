@@ -84,6 +84,89 @@ function string.trim(str)
 	return (str:gsub("^%s*(.-)%s*$", "%1"))
 end
 
+-- 计算一个字符的字节长度
+local function utf8_charsize(ch)
+	if not ch then return 0
+	elseif ch >=252 then return 6
+	elseif ch >= 248 and ch < 252 then return 5
+	elseif ch >= 240 and ch < 248 then return 4
+	elseif ch >= 224 and ch < 240 then return 3
+	elseif ch >= 192 and ch < 224 then return 2
+	elseif ch < 192 then return 1
+	end
+end
+
+
+--[[
+	计算utf8字符串的长度
+	@param string ch
+	@return int
+]]
+function string.utf8len(str)
+
+	local len = 0
+	local aNum = 0 --字母个数
+	local hNum = 0 --汉字个数
+	local currentIndex = 1
+	while currentIndex <= #str do
+		local char = string.byte(str, currentIndex)
+		local cs = utf8_charsize(char)
+		currentIndex = currentIndex + cs
+		len = len +1
+		if cs == 1 then
+			aNum = aNum + 1
+		elseif cs >= 2 then
+			hNum = hNum + 1
+		end
+	end
+	return len, aNum, hNum
+end
+
+--[[
+	截取utf8 字符串
+	str			: 要截取的字符串
+	startChar	: 开始字符下标,从1开始
+	numChars	: 要截取的字符长度
+]]
+function string.utf8sub(str, startChar, numChars)
+	local startIndex = 1
+	while startChar > 1 do
+		local char = string.byte(str, startIndex)
+		startIndex = startIndex + utf8_charsize(char)
+		startChar = startChar - 1
+	end
+
+	local currentIndex = startIndex
+
+	while numChars > 0 and currentIndex <= #str do
+		local char = string.byte(str, currentIndex)
+		currentIndex = currentIndex + utf8_charsize(char)
+		numChars = numChars -1
+	end
+	return str:sub(startIndex, currentIndex - 1)
+end
+
+--[[
+	字符串切片
+	str		: 要截取的字符串
+	length	: 切片长度
+]]
+function string.utf8slice(str, length)
+	local list = {}
+
+	local start = 1
+	local len = string.utf8len(str)
+
+	while len > 0 do
+		table.insert(list, string.utf8sub(str, start, length))
+		start = start + length
+		len = len - length
+	end
+
+	return list
+
+end
+
 ---------------------------------------------------
 -- table extension
 ---------------------------------------------------
